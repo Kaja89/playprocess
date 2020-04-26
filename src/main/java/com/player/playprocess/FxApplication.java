@@ -26,10 +26,9 @@ public class FxApplication extends Application {
             }
         };
 
-        this.applicationContext = new SpringApplicationBuilder()
-                .sources(PlayprocessApplication.class)
-                .initializers()
-                .run(getParameters().getRaw().toArray(new String[0]));
+        this.applicationContext = new SpringApplicationBuilder().sources(PlayprocessApplication.class)
+                .initializers(initializer)
+                .build().run(getParameters().getRaw().toArray(new String[0]));
     }
 
     @Override

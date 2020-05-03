@@ -64,6 +64,8 @@ public class VideoController {
 
         this.mediaPlayer.setOnEndOfMedia(() -> {
             this.videoSlider.setValue(0.0);
+            this.mediaPlayer.seek(new Duration(0.0));
+            this.mediaPlayer.stop();
         });
 
         this.mediaPlayer.currentTimeProperty().addListener((observableValue, oldTime, newTime) -> {

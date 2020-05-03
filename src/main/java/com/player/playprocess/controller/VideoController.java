@@ -44,39 +44,16 @@ public class VideoController {
     }
 
     public void runMedia() {
-        URL resource = UIController.class.getResource("/video/VID_20191004_211955.mp4");//todo select file from computer
-//        URL resource = UIController.class.getResource("/video/VID_20200418_161357.mp4");//todo select file from computer
+        this.createMediaPlayer();
+        this.assignMediaPlayerListeners();
+        this.assignVideoSliderListeners();
+        this.assignBindings();
+    }
 
-        this.mediaPlayer = new MediaPlayer(new Media(resource.toExternalForm()));
-        this.video.setMediaPlayer(this.mediaPlayer);
-        DoubleProperty height = this.video.fitHeightProperty();
-        DoubleProperty width = this.video.fitWidthProperty();
-        width.bind(Bindings.selectDouble(this.video.sceneProperty(), "width"));
-        height.bind(Bindings.selectDouble(this.video.sceneProperty(), "height"));
-
+    private void assignMediaPlayerListeners() {
         this.mediaPlayer.setOnReady(() -> {
             System.out.println("TOTAL DURATION: " + this.mediaPlayer.getTotalDuration().toMinutes());
             this.videoSlider.setMax(this.mediaPlayer.getTotalDuration().toSeconds());
-        });
-
-        this.timeLabel.textProperty().bind(
-                Bindings.createStringBinding(() -> {
-                            Duration time = this.mediaPlayer.getCurrentTime();
-                            return String.format("%4d:%02d:%02d",
-                                    (int) time.toHours(),
-                                    (int) time.toMinutes() % 60,
-                                    (int) time.toSeconds() % 60);
-                        },
-                        this.mediaPlayer.currentTimeProperty()));
-
-        //works
-        this.videoSlider.valueProperty().addListener((obs, oldV, newV) -> {
-            Duration videoDuration = this.mediaPlayer.getMedia().getDuration();
-            double sliderValue = this.videoSlider.getValue();
-            if (this.videoSlider.isValueChanging()) {
-                Duration test = videoDuration.multiply(sliderValue / 10.0);
-                this.mediaPlayer.seek(test);
-            }
         });
 
         this.mediaPlayer.setOnEndOfMedia(() -> {
@@ -91,6 +68,44 @@ public class VideoController {
                 this.videoSlider.setValue(mediaPlayer.getCurrentTime().toSeconds());
             }
         });
+    }
+
+    private void assignBindings() {
+        this.timeLabel.textProperty().bind(Bindings.createStringBinding(() -> {
+                    Duration time = this.mediaPlayer.getCurrentTime();
+                    return String.format("%4d:%02d:%02d",
+                            (int) time.toHours(),
+                            (int) time.toMinutes() % 60,
+                            (int) time.toSeconds() % 60);
+                },
+                this.mediaPlayer.currentTimeProperty()));
+    }
+
+    private void assignVideoSliderListeners() {
+        //works
+        this.videoSlider.valueProperty().addListener((obs, oldV, newV) -> {
+            Duration videoDuration = this.mediaPlayer.getMedia().getDuration();
+            double sliderValue = this.videoSlider.getValue();
+
+            if (this.videoSlider.isValueChanging()) {
+                Duration test = videoDuration.multiply(sliderValue / 10.0);
+                this.mediaPlayer.seek(test);
+            }
+        });
+    }
+
+    private void createMediaPlayer() {
+        URL resource = UIController.class.getResource("/video/VID_20191004_211955.mp4");//todo select file from computer
+//        URL resource = UIController.class.getResource("/video/VID_20200418_161357.mp4");//todo select file from computer
+
+        this.mediaPlayer = new MediaPlayer(new Media(resource.toExternalForm()));
+        this.video.setMediaPlayer(this.mediaPlayer);
+
+        DoubleProperty height = this.video.fitHeightProperty();
+        DoubleProperty width = this.video.fitWidthProperty();
+
+        width.bind(Bindings.selectDouble(this.video.sceneProperty(), "width"));
+        height.bind(Bindings.selectDouble(this.video.sceneProperty(), "height"));
     }
 
     @FXML

@@ -4,6 +4,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -28,9 +29,13 @@ public class VideoController {
     @FXML
     public Slider videoSlider;
 
+    @FXML
+    public Label timeLabel;
+
     private MediaPlayer mediaPlayer;
 
     public VideoController() {
+
     }
 
     @FXML
@@ -40,6 +45,7 @@ public class VideoController {
 
     public void runMedia() {
         URL resource = UIController.class.getResource("/video/VID_20191004_211955.mp4");//todo select file from computer
+//        URL resource = UIController.class.getResource("/video/VID_20200418_161357.mp4");//todo select file from computer
 
         this.mediaPlayer = new MediaPlayer(new Media(resource.toExternalForm()));
         this.video.setMediaPlayer(this.mediaPlayer);
@@ -49,8 +55,19 @@ public class VideoController {
         height.bind(Bindings.selectDouble(this.video.sceneProperty(), "height"));
 
         this.mediaPlayer.setOnReady(() -> {
+            System.out.println("TOTAL DURATION: " + this.mediaPlayer.getTotalDuration().toMinutes());
             this.videoSlider.setMax(this.mediaPlayer.getTotalDuration().toSeconds());
         });
+
+        this.timeLabel.textProperty().bind(
+                Bindings.createStringBinding(() -> {
+                            Duration time = this.mediaPlayer.getCurrentTime();
+                            return String.format("%4d:%02d:%02d",
+                                    (int) time.toHours(),
+                                    (int) time.toMinutes() % 60,
+                                    (int) time.toSeconds() % 60);
+                        },
+                        this.mediaPlayer.currentTimeProperty()));
 
         //works
         this.videoSlider.valueProperty().addListener((obs, oldV, newV) -> {
